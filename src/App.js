@@ -1,48 +1,51 @@
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 
 function App() {
-  const zoneRef = useRef()
-  const sizeRef = useRef()
-  const floodingRef = useRef()
+  const [form, setFormValue] = useState( {zone: "", size: "", flooding: false});
+
+  function handleChange(e) {
+    const {name, value} = e.target;
+    setFormValue(prevState => ({...prevState, [name]:value, }));
+  }
+
+  function handleCheck(e) {
+    const {name, checked} = e.target;
+    setFormValue(prevState => ({...prevState, [name]:checked, }));
+  }
 
   function handleSubmit(e) {
     clearAnalysis() // clears previous results
-
-    const zone = Number(zoneRef.current.value)
-    const size = Number(sizeRef.current.value)
-    const flooding = document.getElementById("floodCheck").checked
 
     const feedback = document.getElementById("feedbackText")
     const analysisSection = document.getElementById("analysisSection")
 
     // checks if values are valid, needs to be valid to analyse
-    if (zone > 0 && size > 0 && zone <= 3) {
-      analyse(zone, size, flooding)
+    if (form.zone > 0 && form.size > 0 && form.zone <= 3) {
+      analyse()
       feedback.innerHTML = "⮟"
-      feedback.style = "color: green"
+      feedback.className = "feedback-valid"
       analysisSection.style.display = "block" // reveal
     }
     else {
       feedback.innerHTML = "Invalid input"
-      feedback.style = "color: red"
+      feedback.className = "feedback-invalid"
       analysisSection.style.display = "none" // hide
     }
   }
 
   // separate these rules checks for more complex data/processing
-  function analyse(z, s, f) {
-    var analysis = [true, true, true] // building type 1, 2, 3
-
-    // Rule 1 -> assuming apartment counts as a housing type
-    if (f) analysis = [false, false, analysis[2]]
+  function analyse(){
+    var analysis = [true, true, true]
+    // Rule 1
+    if (form.flooding) analysis = [false, false, analysis[2]]
     // Rule 2
-    if (z === 3) analysis = [false, analysis[1], analysis[2]]
+    if (Number(form.zone) === 3) analysis = [false, analysis[1], analysis[2]]
     // Rule 3
-    if (z === 1 || s < 500) analysis = [analysis[0], false, analysis[2]]
+    if (Number(form.zone) === 1 || form.size < 500) analysis = [analysis[0], false, analysis[2]]
     // Rule 4
-    if (z === 1 || z === 2 || s <= 1000) analysis = [analysis[0], analysis[1], false]
-  
+    if (Number(form.zone) !== 3 || form.size <= 1000) analysis = [analysis[0], analysis[1], false]
+
     displayAnalysis(analysis)
   }
 
@@ -76,22 +79,22 @@ function App() {
       <h1>Property Facts</h1>
         <div className="propertyFacts">
           <h3>Zone</h3>
-          <input ref={zoneRef} type="text" id="zoneInput"/>
+          <input type="text" id="zoneInput" name="zone" onChange={handleChange} />
           <div className="prompts">(1-3)</div>
 
           <h3>Size</h3>
-          <input ref={sizeRef} type="text" id="sizeInput"/>
+          <input type="text" id="sizeInput" name="size" onChange={handleChange}/>
           <div className="prompts">(Square Meters)</div>
 
           <h3>Is flooding area?</h3>
           <div className="check">
-            <input ref={floodingRef} type="checkbox" id="floodCheck"/>
+            <input type="checkbox" id="floodCheck" name="flooding" onChange={handleCheck}/>
             <b>Flood area</b>
           </div>
           
         </div>
         <button onClick={handleSubmit} id="submitButton">Submit</button>
-        <div id="feedbackText"> </div>
+        <div className="feedback" id="feedbackText"> </div>
 
       <hr></hr>
       <div id="analysisSection" hidden>

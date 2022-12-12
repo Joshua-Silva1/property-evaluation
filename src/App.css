@@ -46,3 +46,11 @@ li {
   box-shadow: none;
   margin-top: 20px;
 }
+
+.feedback-valid {
+  color: green;
+}
+
+.feedback-invalid {
+  color: red;
+}
