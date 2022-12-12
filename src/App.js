@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import './App.css';
 
 function App() {
-  const [form, setFormValue] = useState( {zone: "", size: "", flooding: false});
+  const [form, setFormValue] = useState({zone: "", size: "", flooding: false});
+  const [isError, setIsError] = useState(true);
+  const [results, setResults] = useState([false, false, false]);
+
+  const buildingTypes = ["Single dwelling house", "Apartment complex", "Commercial building"]
 
   function handleChange(e) {
     const {name, value} = e.target;
@@ -15,22 +19,17 @@ function App() {
   }
 
   function handleSubmit(e) {
-    clearAnalysis() // clears previous results
-
-    const feedback = document.getElementById("feedbackText")
-    const analysisSection = document.getElementById("analysisSection")
+    //const analysisSection = document.getElementById("analysisSection")
 
     // checks if values are valid, needs to be valid to analyse
     if (form.zone > 0 && form.size > 0 && form.zone <= 3) {
+      setIsError(false)
       analyse()
-      feedback.innerHTML = "⮟"
-      feedback.className = "feedback-valid"
-      analysisSection.style.display = "block" // reveal
+      //analysisSection.style.display = "block" // reveal
     }
     else {
-      feedback.innerHTML = "Invalid input"
-      feedback.className = "feedback-invalid"
-      analysisSection.style.display = "none" // hide
+      setIsError(true)
+      //analysisSection.style.display = "none" // hide
     }
   }
 
@@ -46,31 +45,7 @@ function App() {
     // Rule 4
     if (Number(form.zone) !== 3 || form.size <= 1000) analysis = [analysis[0], analysis[1], false]
 
-    displayAnalysis(analysis)
-  }
-
-  function clearAnalysis() {
-    const verdict = document.getElementById("verdicts")
-
-    // loop over and remove any previous verdicts
-    while (verdict.firstChild) {
-      verdict.removeChild( verdict.firstChild );
-    }
-  }
-
-  // displays text for the verdicts of the analysis
-  function displayAnalysis(analysis) {
-    const verdict = document.getElementById("verdicts")
-    const buildingTypes = ["Single dwelling house", "Apartment complex", "Commercial building"]
-
-    // if a building type's value is true in the array, set the text appropriately
-    for (let i = 0; i < buildingTypes.length; i++) {
-      if (analysis[i]) {
-        const v = document.createElement('li')
-        v.innerHTML = buildingTypes[i]
-        verdict.appendChild(v)
-      }
-    }
+    setResults(analysis)
   }
 
   return (
@@ -94,13 +69,14 @@ function App() {
           
         </div>
         <button onClick={handleSubmit} id="submitButton">Submit</button>
-        <div className="feedback" id="feedbackText"> </div>
+        <div className={isError ? "feedback-invalid" : "feedback-valid"} id="feedbackText">{isError ? 'Invalid Input' :'⮟'}</div>
 
       <hr></hr>
-      <div id="analysisSection" hidden>
+      <div id="analysisSection">
         <h1>Analysis Results</h1>
         <div>Based on these property facts, the allowed building types are:</div>
         <ul id="verdicts">
+          {results.map((value, index) => value && <li>{buildingTypes[index]}</li>)}
         </ul>
       </div>
     </div>
