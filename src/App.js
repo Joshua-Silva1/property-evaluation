@@ -19,17 +19,17 @@ function App() {
   }
 
   function handleSubmit(e) {
-    //const analysisSection = document.getElementById("analysisSection")
+    const analysisSection = document.getElementById("analysisSection")
 
     // checks if values are valid, needs to be valid to analyse
     if (form.zone > 0 && form.size > 0 && form.zone <= 3) {
       setIsError(false)
       analyse()
-      //analysisSection.style.display = "block" // reveal
+      analysisSection.style.display = "block" // reveal
     }
     else {
       setIsError(true)
-      //analysisSection.style.display = "none" // hide
+      analysisSection.style.display = "none" // hide
     }
   }
 
@@ -72,7 +72,7 @@ function App() {
         <div className={isError ? "feedback-invalid" : "feedback-valid"} id="feedbackText">{isError ? 'Invalid Input' :'⮟'}</div>
 
       <hr></hr>
-      <div id="analysisSection">
+      <div id="analysisSection" hidden>
         <h1>Analysis Results</h1>
         <div>Based on these property facts, the allowed building types are:</div>
         <ul id="verdicts">
